@@ -9,7 +9,7 @@ apt-get update
 #remove old version
 apt-get remove docker docker-engine docker.io containerd runc
 
-apt-get install \
+apt-get  -y install \
     apt-transport-https \
     ca-certificates \
     curl \
@@ -23,8 +23,15 @@ echo \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 apt-get update
-apt-get install docker-ce docker-ce-cli containerd.io
+apt-get -y install docker-ce docker-ce-cli containerd.io
 
 #set permissions to kike
 groupadd docker
 usermod -aG docker kike
+
+echo "INSTALLING PORTAINER ...."
+docker pull portainer/portainer-ce:latest
+docker stop PRD-Portainer-local
+docker rm PRD-Portainer-local
+docker run -d -p 8000:8000 -p 9000:9000 --name=PRD-Portainer-local --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+
