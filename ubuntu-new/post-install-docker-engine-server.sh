@@ -29,9 +29,15 @@ apt-get -y install docker-ce docker-ce-cli containerd.io
 groupadd docker
 usermod -aG docker kike
 
+# Create a SWARM environment
+docker swarm init
+
 echo "INSTALLING PORTAINER ...."
 docker pull portainer/portainer-ce:latest
-docker stop PRD-Portainer-local
-docker rm PRD-Portainer-local
-docker run -d -p 8000:8000 -p 9000:9000 --name=PRD-Portainer-local --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
-
+sudo docker service create  \
+    --name portainer \
+    --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
+    --mount type=volume,source=portainer_vol,destination=/data \
+    --network proxy-net \
+    --label traefik.port=9000 \
+    portainer/portainer-ce:latest
