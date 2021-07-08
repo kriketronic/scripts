@@ -32,10 +32,28 @@ usermod -aG docker kike
 # Create a SWARM environment
 docker swarm init
 
+echo "CREATING NETWORKING"
+docker network create --driver overlay proxy-net
+
+echo "INSTALLING TRAEFIC"
+docker service create \
+    --name proxy \
+    --constraint=node.role==manager \
+    -p 80:80 \
+    -p 9090:8080 \
+    --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
+    --network proxy-net traefik:1.7 \
+    --docker \
+    --docker.swarmmode \
+    --docker.domain=kricomtik-tst.local \
+    --docker.watch \
+    --api
+
 echo "INSTALLING PORTAINER ...."
 docker pull portainer/portainer-ce:latest
 sudo docker service create  \
     --name portainer \
+    --constraint=node.role==manager \
     --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
     --mount type=volume,source=portainer_vol,destination=/data \
     --network proxy-net \
