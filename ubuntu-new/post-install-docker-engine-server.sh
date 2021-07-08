@@ -6,6 +6,9 @@ timedatectl set-timezone America/Argentina/Buenos_Aires
 #update apt
 apt-get update
 
+#commons cifs
+sudo apt install cifs-utils
+
 #remove old version
 apt-get remove docker docker-engine docker.io containerd runc
 
